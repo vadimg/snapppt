@@ -71,7 +71,7 @@ Presentation.prototype.getDeck = function(cb) {
   var images = {};
   var names = [];
   var errored = false;
-  self.data.files.forEach(function(file) {
+  self.data.slides.forEach(function(file) {
     var filename = DATA_DIR + self._id + '/' + file;
     fs.readFile(filename, function(err, buf) {
       if (err) {
@@ -83,7 +83,7 @@ Presentation.prototype.getDeck = function(cb) {
       }
       images[filename] = buf;
       names.push(filename);
-      if (names.length === self.data.files.length) {
+      if (names.length === self.data.slides.length) {
         names.sort();
         var ret = [];
         names.forEach(function(name) {
@@ -122,7 +122,7 @@ function createPresentation(pngDir, cb) {
           return cb(err);
         }
         var data = {
-          files: files,
+          slides: files,
           snaps: {}
         };
         var pres = new Presentation(id);
