@@ -1,10 +1,10 @@
-var fs = require('fs');
+var fs = require('fs.extra');
 var spawn = require('child_process').spawn;
 var path = require('path');
 
 var mktemp = require('mktemp');
 
-function convert2pdf(filename, data, cb) {
+function convert2pdf(filename, cb) {
   var extension = path.extname(filename);
 
   mktemp.createDir('/tmp/pres-XXXXXX', function(err, path) {
@@ -12,7 +12,7 @@ function convert2pdf(filename, data, cb) {
       return cb(err);
     }
     var tempFilename = path + '/presentation' + extension;
-    fs.writeFile(tempFilename, data, function(err) {
+    fs.move(filename, tempFilename, function(err) {
       if (err) {
         return cb(err);
       }
@@ -46,8 +46,8 @@ function pdf2png(pdfFilename, cb) {
   });
 }
 
-function processFile(filename, data, cb) {
-  convert2pdf(filename, data, function(err, pdfFilename) {
+function processFile(filename, cb) {
+  convert2pdf(filename, function(err, pdfFilename) {
     if (err) {
       return cb(err);
     }

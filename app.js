@@ -1,11 +1,31 @@
 var express = require('express');
 
 var model = require('./model');
+var convert = require('./convert');
 
 var app = express();
 
+app.use(express.bodyParser());
+
 app.get('/', function(req, res) {
  res.sendfile('./index.html');
+});
+
+app.post('/upload', function(req, res) {
+  convert.processFile(req.files.file.path, function(err, path) {
+    if (err) {
+      return res.send(500);
+    }
+    model.createPresentation(path, function(err, pres) {
+      if (err) {
+        return res.send(500);
+      }
+      return res.send({
+        id: pres.id,
+        pres: pres.data
+      });
+    });
+  });
 });
 
 app.get('/d/*', function(req, res) {
@@ -19,6 +39,18 @@ app.get('/d/*', function(req, res) {
 });
 
 app.get('/s/*', function(req, res) {
+ var id = req.params[0];
+ model.getPresentationForSnap(id, function(err, pres) {
+   if (err) {
+     return res.send(404);
+   }
+   res.send({
+     numSlides: pres.data.slides.length,
+   });
+ });
+});
+
+app.get('/S/*', function(req, res) {
  var id = req.params[0];
  model.getPresentationForSnap(id, function(err, pres) {
    if (err) {

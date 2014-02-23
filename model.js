@@ -27,8 +27,8 @@ function setData(data) {
 }
 
 function Presentation(id) {
-  this._id = id;
-  this._db = DATA_DIR + this._id + '/data.json';
+  this.id = id;
+  this._db = DATA_DIR + this.id + '/data.json';
 }
 
 Presentation.prototype._data = function(cb) {
@@ -57,7 +57,7 @@ Presentation.prototype.createSnap = function(cb) {
     };
 
     var data = getData();
-    data.snaps[id] = self._id; // pointer to presentation
+    data.snaps[id] = self.id; // pointer to presentation
     setData(data);
 
     self.save(function(err) {
@@ -72,7 +72,7 @@ Presentation.prototype.getDeck = function(cb) {
   var names = [];
   var errored = false;
   self.data.slides.forEach(function(file) {
-    var filename = DATA_DIR + self._id + '/' + file;
+    var filename = DATA_DIR + self.id + '/' + file;
     fs.readFile(filename, function(err, buf) {
       if (err) {
         if (!errored) {
