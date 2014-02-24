@@ -28,7 +28,23 @@ app.post('/upload', function(req, res) {
   });
 });
 
-app.get('/d/*', function(req, res) {
+app.post('/new_snap/*', function(req, res) {
+ var deckid = req.params[0];
+ model.getPresentation(deckid, function(err, pres) {
+   if (err) {
+     return res.send(404);
+   }
+   pres.createSnap(function(err, snapid) {
+     if (err) {
+       return res.send(500);
+     }
+     return res.send({snapid: snapid});
+   });
+ });
+});
+
+
+app.get('/deck/*', function(req, res) {
  var id = req.params[0];
  model.getPresentation(id, function(err, pres) {
    if (err) {
@@ -38,7 +54,7 @@ app.get('/d/*', function(req, res) {
  });
 });
 
-app.get('/s/*', function(req, res) {
+app.get('/num_slides/*', function(req, res) {
  var id = req.params[0];
  model.getPresentationForSnap(id, function(err, pres) {
    if (err) {
@@ -50,7 +66,7 @@ app.get('/s/*', function(req, res) {
  });
 });
 
-app.get('/S/*', function(req, res) {
+app.get('/snap/*', function(req, res) {
  var id = req.params[0];
  model.getPresentationForSnap(id, function(err, pres) {
    if (err) {
@@ -71,18 +87,28 @@ app.get('/S/*', function(req, res) {
  });
 });
 
-app.get('/i/*/*.png', function(req, res) {
+app.get('/image/*/*.png', function(req, res) {
  var id = req.params[0];
  var n = req.params[1] - 0;
  model.getPresentationForSnap(id, function(err, pres) {
    if (err) {
      return res.send(404);
    }
+   console.log(n ,pres.data.snaps[id].seen[n]);
+   if (pres.data.snaps[id].seen[n]) {
+     // seen already
+     return res.send(410);
+   }
+   pres.data.snaps[id].seen[n] = true;
+   pres.save();
    pres.getDeck(function(err, deck) {
      if (err) {
        return res.send(404);
      }
      res.type('png');
+     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // HTTP 1.1
+     res.setHeader('Pragma', 'no-cache'); // HTTP 1.0
+     res.setHeader('Expires', '0'); // Proxies
      res.send(deck[n]);
    });
  });

@@ -53,7 +53,8 @@ Presentation.prototype.createSnap = function(cb) {
     }
 
     self.data.snaps[id] = {
-      seen: false
+      // an array of falses
+      seen: Array.apply(null, Array(self.data.slides.length)).map(function() { return false; })
     };
 
     var data = getData();

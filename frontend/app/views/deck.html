@@ -1,0 +1,15 @@
+<p><button ng-click="newSnap()">Create new snap</button>
+
+<div ng-show="numSnaps">
+  <p>Created Snaps:
+  <table>
+    <tr>
+      <th>Snap ID</th>
+      <th>Seen?</th>
+    </tr>
+    <tr ng-repeat="(snapid, snapdata) in snaps">
+      <td><a href="{{snapdata.url}}">{{snapdata.url}}</a></td>
+      <td>{{snapdata.seen ? "Yes" : "No"}}</td>
+    </tr>
+  </table>
+</div>

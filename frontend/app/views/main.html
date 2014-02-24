@@ -1,0 +1,24 @@
+<div class="header">
+  <!--
+  <ul class="nav nav-pills pull-right">
+    <li class="active"><a ng-href="#">Home</a></li>
+    <li><a ng-href="#">About</a></li>
+    <li><a ng-href="#">Contact</a></li>
+  </ul>
+  -->
+  <h3 class="text-muted">snapppt</h3>
+</div>
+
+<div class="jumbotron">
+  <div ng-controller="UploadCtrl">
+    <input type="file" ng-file-select="onFileSelect($files)">
+    <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
+          ng-file-drop-available="dropSupported=true" ng-show="dropSupported">drop files here</div>
+      <button ng-click="upload.abort()" ng-show="upload">Cancel Upload</button>
+      <button class="btn btn-lg btn-success" ng-hide="upload" ng-click="doUpload()" ng-disabled="!file">Upload!</button>
+      <div class="progress-container" ng-show="upload">
+        <div class="progress-bar" style="width: {{progress}}%;">
+        </div>
+      </div>
+  </div>
+</div>
