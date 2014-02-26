@@ -7,8 +7,13 @@ var app = express();
 
 app.use(express.bodyParser());
 
+// static routes
+app.use('/scripts', express.static('frontend/dist/scripts'));
+app.use('/styles', express.static('frontend/dist/styles'));
+app.use('/views', express.static('frontend/dist/views'));
+app.use('/bower_components', express.static('frontend/dist/bower_components'));
 app.get('/', function(req, res) {
- res.sendfile('./index.html');
+ res.sendfile('frontend/dist/index.html');
 });
 
 app.post('/upload', function(req, res) {
@@ -81,4 +86,5 @@ app.get('/image/*/*.png', function(req, res) {
 });
 
 
+console.log('listening on port 8000');
 app.listen(8000);
