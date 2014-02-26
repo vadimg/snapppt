@@ -12,10 +12,6 @@ angular.module('frontendApp')
         url: '/upload',
         method: 'POST',
         file: $scope.file
-      }).progress(function(evt) {
-        var percent = parseInt(100.0 * evt.loaded / evt.total);
-        $scope.progress = percent;
-        console.log('percent: ' + percent);
       }).success(function(data, status, headers, config) {
         // file is uploaded successfully
         $location.path('/deck/' + data.id);

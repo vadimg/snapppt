@@ -2,7 +2,8 @@
 
 angular.module('frontendApp', [
   'ngRoute',
-  'angularFileUpload'
+  'angularFileUpload',
+  'chieffancypants.loadingBar'
 ])
   .config(function ($routeProvider) {
     $routeProvider
