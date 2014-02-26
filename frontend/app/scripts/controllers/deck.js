@@ -8,11 +8,10 @@ angular.module('frontendApp')
     function getSnaps() {
       $http.get('/deck/' + deckid).success(function(data) {
         $scope.snaps = data.snaps;
-        $scope.numSnaps = 0;
-        for (var snapid in $scope.snaps) {
-          $scope.numSnaps++;
-          $scope.snaps[snapid].url = origin + '/#/snap/' + snapid;
-        }
+        $scope.snaps.forEach(function(snap) {
+          snap.url = origin + '/#/snap/' + snap.name;
+          console.log(snap);
+        });
       });
     }
     getSnaps();

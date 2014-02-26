@@ -1,6 +1,13 @@
 var fs = require('fs.extra');
 var crypto = require('crypto');
 
+var pg = require('pg');
+var DB_URL = 'postgres://snapppt:x8PSrT6Zvpq8@localhost/snapppt';
+
+function db(cb) {
+  return pg.connect(DB_URL, cb);
+}
+
 var DATA_DIR = './data/'; // with trailing slash
 
 fs.mkdirp(DATA_DIR, function(err) {
@@ -8,93 +15,6 @@ fs.mkdirp(DATA_DIR, function(err) {
     throw err;
   }
 });
-
-function getData() {
-  // TODO: hack
-  var filename = DATA_DIR + '/data.json';
-  try {
-    fs.readFileSync(filename);
-  } catch(e) {
-    fs.writeFileSync(filename, JSON.stringify({snaps: {}}));
-  }
-  return JSON.parse(fs.readFileSync(filename));
-}
-
-function setData(data) {
-  // TODO: hack
-  var filename = DATA_DIR + '/data.json';
-  fs.writeFileSync(filename, JSON.stringify(data));
-}
-
-function Presentation(id) {
-  this.id = id;
-  this._db = DATA_DIR + this.id + '/data.json';
-}
-
-Presentation.prototype._data = function(cb) {
-  fs.readFile(this._db, function(err, data) {
-    if (err) {
-      return cb(err);
-    }
-    cb(null, JSON.parse(data));
-  });
-};
-
-Presentation.prototype.save = function(cb) {
-  var str = JSON.stringify(this.data);
-  fs.writeFile(this._db, str, cb);
-};
-
-Presentation.prototype.createSnap = function(cb) {
-  var self = this;
-  createID(function(err, id) {
-    if (err) {
-      return cb(err);
-    }
-
-    self.data.snaps[id] = {
-      // an array of falses
-      seen: Array.apply(null, Array(self.data.slides.length)).map(function() { return false; })
-    };
-
-    var data = getData();
-    data.snaps[id] = self.id; // pointer to presentation
-    setData(data);
-
-    self.save(function(err) {
-      cb(err, id);
-    });
-  });
-};
-
-Presentation.prototype.getDeck = function(cb) {
-  var self = this;
-  var images = {};
-  var names = [];
-  var errored = false;
-  self.data.slides.forEach(function(file) {
-    var filename = DATA_DIR + self.id + '/' + file;
-    fs.readFile(filename, function(err, buf) {
-      if (err) {
-        if (!errored) {
-          errored = true;
-          cb(err);
-        }
-        return;
-      }
-      images[filename] = buf;
-      names.push(filename);
-      if (names.length === self.data.slides.length) {
-        names.sort();
-        var ret = [];
-        names.forEach(function(name) {
-          ret.push(images[name]);
-        });
-        cb(null, ret);
-      }
-    });
-  });
-};
 
 function createID(cb) {
   crypto.randomBytes(16, function(err, buf) {
@@ -122,57 +42,177 @@ function createPresentation(pngDir, cb) {
         if (err) {
           return cb(err);
         }
-        var data = {
-          slides: files,
-          snaps: {}
-        };
-        var pres = new Presentation(id);
-        pres.data = data;
-        pres.save(function(err) {
-          return cb(err, pres);
+
+        db(function(err, client, done) {
+          if(err) {
+            return cb(err);
+          }
+
+          client.query('insert into deck (name) values ($1) RETURNING id;', [id], function(err, result) {
+            if (err) {
+              done();
+              return cb(err);
+            }
+
+            var deck_id = result.rows[0].id;
+            var values = [];
+            files.forEach(function(file, i) {
+              values.push(i);
+              values.push(deck_id);
+              values.push(datadir + '/' + file);
+            });
+            var query = 'insert into slide (num, deck_id, data_path) values ' + placeholder(3, files.length) + ';';
+            client.query(query, values, function(err) {
+              done();
+              if (err) {
+                return cb(err);
+              }
+              cb(null, id);
+            });
+          });
         });
       });
     });
   });
 }
 
-function getPresentation(id, cb) {
-  var pres = new Presentation(id);
+function placeholder(cols, rows, n) {
+  n = n || 1;
+  rows = rows || 1;
 
-  // try to get data as a way to check if it's valid
-  pres._data(function(err, data) {
-    if (err) {
-      return cb(new Error('Invalid presentation id: ' + id));
+  var placeholders = [];
+  for(var i=0; i < rows; ++i) {
+    var c = [];
+    for(var j=0; j < cols; ++j) {
+      c.push('$' + n);
+      ++n;
     }
-    pres.data = data;
-    return cb(null, pres);
+    placeholders.push('(' + c.join(',') + ')');
+  }
+  return placeholders.join(',');
+}
+
+function createSnap(deck_name, cb) {
+  createID(function(err, snap_name) {
+    if (err) {
+      return cb(err);
+    }
+
+    db(function(err, client, done) {
+      if(err) {
+        return cb(err);
+      }
+      client.query('select deck.id as deck_id, slide.id as slide_id ' +
+                   ' from deck, slide where deck.name = $1 ' +
+                   ' and deck.id = slide.deck_id',
+                   [deck_name], function(err, result) {
+        if(err) {
+          done();
+          return cb(err);
+        }
+        var slides = result.rows;
+        var deck_id = result.rows[0].deck_id;
+
+        client.query('insert into snap (name, deck_id) values ($1, $2) RETURNING id;',
+                     [snap_name, deck_id], function(err, result) {
+          if(err) {
+            done();
+            return cb(err);
+          }
+          var snap_id = result.rows[0].id;
+
+          var values = [];
+          slides.forEach(function(slide) {
+            values.push(snap_id);
+            values.push(slide.slide_id);
+          });
+
+          var query = 'insert into snap_slide (snap_id, slide_id) values ' + placeholder(2, slides.length);
+          client.query(query, values, function(err) {
+            done();
+            if (err) {
+              return cb(err);
+            }
+            cb(null, snap_id);
+          });
+        });
+      });
+    });
   });
 }
 
-function getPresentationForSnap(id, cb) {
-  var data = getData();
-  if (!data.snaps[id]) {
-    cb(new Error('Invalid snap id: ' + id));
-  }
-  getPresentation(data.snaps[id], cb);
+function getSnapsForDeck(deck_name, cb) {
+  db(function(err, client, done) {
+    if(err) {
+      return cb(err);
+    }
+    client.query('select snap.name as name, ' +
+                 ' sum(cast(snap_slide.seen as int))/count(*) as seen_ratio ' +
+                 ' from deck, snap, snap_slide where deck.name = $1 and ' +
+                 ' snap.deck_id = deck.id and snap_slide.snap_id = snap.id ' +
+                 ' group by snap.id order by snap.id desc',
+                 [deck_name], function(err, result) {
+      done();
+      if(err) {
+        return cb(err);
+      }
+      cb(null, result.rows);
+    });
+  });
 }
 
-function markSnapAsSeen(id, cb) {
-  var data = getData();
-  if (!data.snaps[id]) {
-    return cb(null);
-  }
-  getPresentation(data.snaps[id], function(err, pres) {
-    pres.data.snaps[id].seen = true;
-    pres.save(cb);
+function getNumSlides(snap_name, cb) {
+  db(function(err, client, done) {
+    if(err) {
+      return cb(err);
+    }
+    client.query('select count(*) as count ' +
+                 ' from snap, snap_slide where snap_slide.snap_id = snap.id ' +
+                 ' and snap.name = $1',
+                 [snap_name], function(err, result) {
+      done();
+      if(err) {
+        return cb(err);
+      }
+      cb(null, result.rows[0].count - 0);
+    });
   });
-  delete data.snaps[id];
-  setData(data);
 }
+
+function viewSnap(snap_name, n, cb) {
+  db(function(err, client, done) {
+    if(err) {
+      return cb(err);
+    }
+    client.query('update snap_slide set seen=true from snap, slide ' +
+                 ' where snap.id = snap_slide.snap_id and snap.name = $1 ' +
+                 ' and snap_slide.slide_id=slide.id and slide.num = $2 ' +
+                 ' and snap_slide.seen=false returning slide.data_path',
+                 [snap_name, n], function(err, result) {
+      done();
+      if(err) {
+        return cb(err);
+      }
+      if (result.rows.length === 0) {
+        return cb(new Error('Not found!'));
+      }
+      var filepath = result.rows[0].data_path;
+      fs.readFile(filepath, function(err, data) {
+        if(err) {
+          return cb(err);
+        }
+        cb(null, data);
+      });
+    });
+  });
+}
+
+
 
 module.exports = {
   createPresentation: createPresentation,
-  getPresentation: getPresentation,
-  getPresentationForSnap: getPresentationForSnap,
-  markSnapAsSeen: markSnapAsSeen,
+  createSnap: createSnap,
+  getSnapsForDeck: getSnapsForDeck,
+  getNumSlides: getNumSlides,
+  viewSnap: viewSnap,
 };

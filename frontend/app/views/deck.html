@@ -1,15 +1,15 @@
 <p><button ng-click="newSnap()">Create new snap</button>
 
-<div ng-show="numSnaps">
+<div ng-show="snaps.length">
   <p>Created Snaps:
   <table>
     <tr>
       <th>Snap ID</th>
-      <th>Seen?</th>
+      <th>Seen %</th>
     </tr>
-    <tr ng-repeat="(snapid, snapdata) in snaps">
-      <td><a href="{{snapdata.url}}">{{snapdata.url}}</a></td>
-      <td>{{snapdata.seen ? "Yes" : "No"}}</td>
+    <tr ng-repeat="snap in snaps">
+      <td><a href="{{snap.url}}">{{snap.url}}</a></td>
+      <td>{{100 * snap.seen_ratio | number:0}}</td>
     </tr>
   </table>
 </div>

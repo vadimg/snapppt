@@ -6,7 +6,8 @@
   "dependencies": {
     "express": "3.4.8",
     "fs.extra": "1.2.1",
-    "mktemp": "0.3.4"
+    "mktemp": "0.3.4",
+    "pg": "2.11.1"
   },
   "devDependencies": {},
   "scripts": {
