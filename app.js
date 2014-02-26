@@ -14,10 +14,12 @@ app.get('/', function(req, res) {
 app.post('/upload', function(req, res) {
   convert.processFile(req.files.file.path, function(err, path) {
     if (err) {
+      console.trace(err);
       return res.send(500);
     }
     model.createPresentation(path, function(err, id) {
       if (err) {
+        console.trace(err);
         return res.send(500);
       }
       return res.send({
@@ -31,6 +33,7 @@ app.post('/new_snap/*', function(req, res) {
  var deckid = req.params[0];
  model.createSnap(deckid, function(err, snapid) {
    if (err) {
+     console.trace(err);
      return res.send(500);
    }
    return res.send({snapid: snapid});
@@ -42,6 +45,7 @@ app.get('/deck/*', function(req, res) {
  var id = req.params[0];
  model.getSnapsForDeck(id, function(err, data) {
    if (err) {
+     console.trace(err);
      return res.send(404);
    }
    return res.send({snaps: data});
@@ -52,6 +56,7 @@ app.get('/num_slides/*', function(req, res) {
  var id = req.params[0];
  model.getNumSlides(id, function(err, num) {
    if (err) {
+     console.trace(err);
      return res.send(404);
    }
    res.send({

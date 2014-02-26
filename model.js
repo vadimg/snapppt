@@ -21,7 +21,7 @@ function createID(cb) {
     if (err) {
       return cb(err);
     }
-    var id = buf.toString('base64').replace('/', '-').slice(0, -2);
+    var id = buf.toString('base64').replace('/', '-', 'g').slice(0, -2);
     cb(null, id);
   });
 }
@@ -166,7 +166,8 @@ function getNumSlides(snap_name, cb) {
     if(err) {
       return cb(err);
     }
-    client.query('select count(*) as count ' +
+    client.query('select count(*) as count, ' +
+                 ' sum(cast(snap_slide.seen as int)) as seen ' +
                  ' from snap, snap_slide where snap_slide.snap_id = snap.id ' +
                  ' and snap.name = $1',
                  [snap_name], function(err, result) {
@@ -174,7 +175,12 @@ function getNumSlides(snap_name, cb) {
       if(err) {
         return cb(err);
       }
-      cb(null, result.rows[0].count - 0);
+      var seen = result.rows[0].seen;
+      var count = result.rows[0].count;
+      if (seen != 0) {
+        return cb(new Error('Some slides were already seen!'));
+      }
+      cb(null, count - 0);
     });
   });
 }

@@ -8,7 +8,7 @@
       <th>Seen %</th>
     </tr>
     <tr ng-repeat="snap in snaps">
-      <td><a href="{{snap.url}}">{{snap.url}}</a></td>
+      <td><a href="{{snap.url}}" target="_blank">{{snap.url}}</a></td>
       <td>{{100 * snap.seen_ratio | number:0}}</td>
     </tr>
   </table>

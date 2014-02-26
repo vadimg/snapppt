@@ -13,5 +13,7 @@ angular.module('frontendApp')
     $http.get('/num_slides/' + snapid).success(function(data) {
       $scope.numSlides = data.numSlides;
       $scope.fakeArray = new Array($scope.numSlides);
+    }).error(function() {
+      alert('Snapppt not found!');
     });
   });
