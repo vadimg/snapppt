@@ -15,12 +15,12 @@
     ng-file-drop-available="dropSupported=true">
     <div>
       <button class="btn file-select">
-        Select File
+        Choose File
         <input type="file" ng-file-select="onFileSelect($files)">
       </button><input type="text" class="file-name" ng-model="file.name" readonly="true"/>
     </div>
-    <div class="drag-n-drop" ng-show="dropSupported">or drag-n-drop a file here</div>
+    <div class="drag-n-drop" ng-show="dropSupported">or drag-n-drop a presentation (ppt, pdf, etc) here</div>
     <button ng-click="upload.abort()" ng-show="upload">Cancel Upload</button>
-    <button class="btn btn-lg btn-success" ng-hide="upload" ng-click="doUpload()" ng-disabled="!file">Upload!</button>
+    <button class="btn btn-lg btn-success" ng-hide="upload" ng-click="doUpload()" ng-disabled="!file">Upload Presentation!</button>
   </div>
 </div>
