@@ -9,12 +9,19 @@
   <h3 class="text-muted">snapppt</h3>
 </div>
 
-<div class="jumbotron">
-  <div ng-controller="UploadCtrl">
-    <input type="file" ng-file-select="onFileSelect($files)">
-    <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class"
-          ng-file-drop-available="dropSupported=true" ng-show="dropSupported">drop files here</div>
-      <button ng-click="upload.abort()" ng-show="upload">Cancel Upload</button>
-      <button class="btn btn-lg btn-success" ng-hide="upload" ng-click="doUpload()" ng-disabled="!file">Upload!</button>
+<h2>Create a presentation that can only be seen once.</h2>
+<div ng-controller="UploadCtrl">
+  <div class="jumbotron upload" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="upload-drag-over"
+    ng-file-drop-available="dropSupported=true">
+    <div>
+      <button class="btn file-select">
+        Select File
+        <input type="file" ng-file-select="onFileSelect($files)">
+      </button>
+      <input type="text" class="file-name" ng-model="file.name" readonly="true"/>
+    </div>
+    <div class="drag-n-drop" ng-show="dropSupported">or drag-n-drop a file here</div>
+    <button ng-click="upload.abort()" ng-show="upload">Cancel Upload</button>
+    <button class="btn btn-lg btn-success" ng-hide="upload" ng-click="doUpload()" ng-disabled="!file">Upload!</button>
   </div>
 </div>

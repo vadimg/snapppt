@@ -1,3 +1,4 @@
+<p>Bookmark this page, but don't share the URL! This is not password protected!
 <p><button ng-click="newSnap()">Create new snap</button>
 
 <div ng-show="snaps.length">
@@ -5,11 +6,11 @@
   <table>
     <tr>
       <th>Snap ID</th>
-      <th>Seen %</th>
+      <th>Seen?</th>
     </tr>
     <tr ng-repeat="snap in snaps">
       <td><a href="{{snap.url}}" target="_blank">{{snap.url}}</a></td>
-      <td>{{100 * snap.seen_ratio | number:0}}</td>
+      <td>{{snap.seen_ratio == 0 ? "No" : snap.seen_ratio == 1 ? "Yes" : "Partially"}}</td>
     </tr>
   </table>
 </div>

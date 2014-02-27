@@ -6,7 +6,7 @@
   <div class="bottom" ng-show="numSlides">
     <div class="centered">
       <button ng-disabled="activeSlide <= 1" ng-click="activeSlide = activeSlide - 1">&lt;</button>
-      &nbsp;<input type="number" ng-model="activeSlide" min="1" max="{{numSlides}}"> / {{numSlides}}
+      &nbsp;<input type="number" ng-model="activeSlide" min="1" max="{{numSlides}}">&nbsp;/ {{numSlides}}
       <button ng-disabled="activeSlide >= numSlides" ng-click="activeSlide = activeSlide + 1">&gt;</button>
     </div>
   </div>
