@@ -59,7 +59,7 @@ function createPresentation(pngDir, cb) {
             files.forEach(function(file, i) {
               values.push(i);
               values.push(deck_id);
-              values.push(datadir + '/' + file);
+              values.push(id + '/' + file); // relative to DATA_DIR
             });
             var query = 'insert into slide (num, deck_id, data_path) values ' + placeholder(3, files.length) + ';';
             client.query(query, values, function(err) {
@@ -203,7 +203,7 @@ function viewSnap(snap_name, n, cb) {
         return cb(new Error('Not found!'));
       }
       var filepath = result.rows[0].data_path;
-      fs.readFile(filepath, function(err, data) {
+      fs.readFile(DATA_DIR + filepath, function(err, data) {
         if(err) {
           return cb(err);
         }
