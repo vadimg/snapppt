@@ -160,6 +160,9 @@ html, body {
 
         // stylistic only
         background-color: #C0C0C0;
+        &:hover {
+            background-color: #aaa;
+        }
 
         input {
             display: block;
