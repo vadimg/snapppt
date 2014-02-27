@@ -17,8 +17,7 @@
       <button class="btn file-select">
         Select File
         <input type="file" ng-file-select="onFileSelect($files)">
-      </button>
-      <input type="text" class="file-name" ng-model="file.name" readonly="true"/>
+      </button><input type="text" class="file-name" ng-model="file.name" readonly="true"/>
     </div>
     <div class="drag-n-drop" ng-show="dropSupported">or drag-n-drop a file here</div>
     <button ng-click="upload.abort()" ng-show="upload">Cancel Upload</button>
