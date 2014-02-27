@@ -156,17 +156,22 @@ html, body {
     .file-select {
         cursor: pointer;
         position: relative;
+        overflow: hidden;
+
+        // stylistic only
+        background-color: #C0C0C0;
 
         input {
-            cursor: pointer;
+            display: block;
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
+            right: 0;
+            cursor: inherit;
+            min-height: 100%;
+            min-width: 100%;
             opacity: 0;
+            text-align: right;
+            font-size: 9999px; // to remove strange non-cursor-pointer area
         }
     }
 
