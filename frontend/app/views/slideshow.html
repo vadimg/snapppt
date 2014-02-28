@@ -1,13 +1,38 @@
-<div class="slideshow">
-  <div class="center">
-    <div class="slide" ng-repeat="_ in fakeArray track by $index" ng-show="$index == activeSlide - 1" style="background-image: url('/image/{{snapid}}/{{$index}}.png')">
+<div class="slideshow" ng-click="next()" ng-show="numSlides">
+  <div class="instructions error" ng-show="keyHidden">
+    <div>
+      <h1>Hold down the "{{KEY}}" key (and only the "{{KEY}}" key) to view</h1>
     </div>
   </div>
-  <div class="bottom" ng-show="numSlides">
+  <div class="instructions error" ng-show="focusHidden">
+    <div>
+      <h1>Window must be in focus to see presentation</h1>
+    </div>
+  </div>
+
+  <div id="slides" class="center">
+    <div class="instructions" ng-show="activeSlide == -1">
+      <div>
+        <h1>Click anywhere to move to the next slide</h1>
+      </div>
+    </div>
+    <div class="instructions" ng-show="activeSlide == 0">
+      <div>
+        <h1>Once you go to the next slide,<br/>
+          you won't be able to see the previous one again</h1>
+      </div>
+    </div>
+    <div class="slide" ng-repeat="_ in fakeArray track by $index" ng-show="$index == activeSlide - 1" style="background-image: url('/image/{{snapid}}/{{$index}}.png')">
+    </div>
+    <div class="instructions error" ng-show="activeSlide == numSlides + 1">
+      <div>
+        <h1>Finished</h1>
+      </div>
+    </div>
+  </div>
+  <div class="bottom" ng-show="activeSlide > 0 && activeSlide <= numSlides">
     <div class="centered">
-      <button ng-disabled="activeSlide <= 1" ng-click="activeSlide = activeSlide - 1">&lt;</button>
-      &nbsp;<input type="number" ng-model="activeSlide" min="1" max="{{numSlides}}">&nbsp;/ {{numSlides}}
-      <button ng-disabled="activeSlide >= numSlides" ng-click="activeSlide = activeSlide + 1">&gt;</button>
+      {{activeSlide}} / {{numSlides}}
     </div>
   </div>
 </div>
