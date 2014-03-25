@@ -50,7 +50,6 @@ app.get('/deck/*', function(req, res) {
  var id = req.params[0];
  model.getSnapsForDeck(id, function(err, data) {
    if (err) {
-     console.trace(err);
      return res.send(404);
    }
    return res.send({snaps: data});
@@ -61,7 +60,6 @@ app.get('/num_slides/*', function(req, res) {
  var id = req.params[0];
  model.getNumSlides(id, function(err, num) {
    if (err) {
-     console.trace(err);
      return res.send(404);
    }
    res.send({
